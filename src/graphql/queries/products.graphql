@@ -2,6 +2,8 @@ query Products($slug: String!){
   products(
     where: {slug: $slug}
   ){
-    title
+    name
+    description
+    price
   }
 }
