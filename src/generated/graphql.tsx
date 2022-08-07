@@ -5345,7 +5345,7 @@ export type Product = Node & {
   localizations: Array<Product>;
   name: Scalars['String'];
   orderItems: Array<OrderItem>;
-  price: Scalars['Int'];
+  price: Scalars['Float'];
   /** The time the document was published. Null on documents in draft stage. */
   publishedAt?: Maybe<Scalars['DateTime']>;
   /** User that last published this document */
@@ -6030,7 +6030,7 @@ export type ProductCreateInput = {
   name: Scalars['String'];
   orderItems?: InputMaybe<OrderItemCreateManyInlineInput>;
   /** price input for default locale (en) */
-  price: Scalars['Int'];
+  price: Scalars['Float'];
   reviews?: InputMaybe<ReviewCreateManyInlineInput>;
   /** slug input for default locale (en) */
   slug: Scalars['String'];
@@ -6042,7 +6042,7 @@ export type ProductCreateLocalizationDataInput = {
   createdAt?: InputMaybe<Scalars['DateTime']>;
   description: Scalars['String'];
   name: Scalars['String'];
-  price: Scalars['Int'];
+  price: Scalars['Float'];
   slug: Scalars['String'];
   updatedAt?: InputMaybe<Scalars['DateTime']>;
 };
@@ -7239,7 +7239,7 @@ export type ProductUpdateInput = {
   name?: InputMaybe<Scalars['String']>;
   orderItems?: InputMaybe<OrderItemUpdateManyInlineInput>;
   /** price input for default locale (en) */
-  price?: InputMaybe<Scalars['Int']>;
+  price?: InputMaybe<Scalars['Float']>;
   reviews?: InputMaybe<ReviewUpdateManyInlineInput>;
   /** slug input for default locale (en) */
   slug?: InputMaybe<Scalars['String']>;
@@ -7249,7 +7249,7 @@ export type ProductUpdateInput = {
 export type ProductUpdateLocalizationDataInput = {
   description?: InputMaybe<Scalars['String']>;
   name?: InputMaybe<Scalars['String']>;
-  price?: InputMaybe<Scalars['Int']>;
+  price?: InputMaybe<Scalars['Float']>;
   slug?: InputMaybe<Scalars['String']>;
 };
 
@@ -7291,12 +7291,12 @@ export type ProductUpdateManyInput = {
   /** Optional updates to localizations */
   localizations?: InputMaybe<ProductUpdateManyLocalizationsInput>;
   /** price input for default locale (en) */
-  price?: InputMaybe<Scalars['Int']>;
+  price?: InputMaybe<Scalars['Float']>;
 };
 
 export type ProductUpdateManyLocalizationDataInput = {
   description?: InputMaybe<Scalars['String']>;
-  price?: InputMaybe<Scalars['Int']>;
+  price?: InputMaybe<Scalars['Float']>;
 };
 
 export type ProductUpdateManyLocalizationInput = {
@@ -7549,21 +7549,21 @@ export type ProductWhereInput = {
   orderItems_every?: InputMaybe<OrderItemWhereInput>;
   orderItems_none?: InputMaybe<OrderItemWhereInput>;
   orderItems_some?: InputMaybe<OrderItemWhereInput>;
-  price?: InputMaybe<Scalars['Int']>;
+  price?: InputMaybe<Scalars['Float']>;
   /** All values greater than the given value. */
-  price_gt?: InputMaybe<Scalars['Int']>;
+  price_gt?: InputMaybe<Scalars['Float']>;
   /** All values greater than or equal the given value. */
-  price_gte?: InputMaybe<Scalars['Int']>;
+  price_gte?: InputMaybe<Scalars['Float']>;
   /** All values that are contained in given list. */
-  price_in?: InputMaybe<Array<Scalars['Int']>>;
+  price_in?: InputMaybe<Array<Scalars['Float']>>;
   /** All values less than the given value. */
-  price_lt?: InputMaybe<Scalars['Int']>;
+  price_lt?: InputMaybe<Scalars['Float']>;
   /** All values less than or equal the given value. */
-  price_lte?: InputMaybe<Scalars['Int']>;
+  price_lte?: InputMaybe<Scalars['Float']>;
   /** All values that are not equal to given value. */
-  price_not?: InputMaybe<Scalars['Int']>;
+  price_not?: InputMaybe<Scalars['Float']>;
   /** All values that are not contained in given list. */
-  price_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  price_not_in?: InputMaybe<Array<Scalars['Float']>>;
   publishedAt?: InputMaybe<Scalars['DateTime']>;
   /** All values greater than the given value. */
   publishedAt_gt?: InputMaybe<Scalars['DateTime']>;
@@ -10346,24 +10346,57 @@ export enum _SystemDateTimeFieldVariation {
   Localization = 'localization'
 }
 
-export type ProductsQueryVariables = Exact<{
+export type ProductBySlugQueryVariables = Exact<{
   slug: Scalars['String'];
 }>;
 
 
-export type ProductsQuery = { __typename?: 'Query', products: Array<{ __typename?: 'Product', name: string, description: string, price: number }> };
+export type ProductBySlugQuery = { __typename?: 'Query', products: Array<{ __typename?: 'Product', name: string, description: string, price: number, images: Array<{ __typename?: 'Asset', fileName: string, url: string }> }> };
+
+export type ProductsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export const ProductsDocument = gql`
-    query Products($slug: String!) {
+export type ProductsQuery = { __typename?: 'Query', products: Array<{ __typename?: 'Product', name: string, description: string, price: number, images: Array<{ __typename?: 'Asset', fileName: string, url: string }>, variants: Array<{ __typename?: 'ProductColorVariant' } | { __typename?: 'ProductSizeColorVariant', id: string, name: string, color: ProductColor } | { __typename?: 'ProductSizeVariant' }> }> };
+
+
+export const ProductBySlugDocument = gql`
+    query ProductBySlug($slug: String!) {
   products(where: {slug: $slug}) {
     name
     description
     price
+    images {
+      fileName
+      url
+    }
   }
 }
     `;
 
-export function useProductsQuery(options: Omit<Urql.UseQueryArgs<ProductsQueryVariables>, 'query'>) {
+export function useProductBySlugQuery(options: Omit<Urql.UseQueryArgs<ProductBySlugQueryVariables>, 'query'>) {
+  return Urql.useQuery<ProductBySlugQuery, ProductBySlugQueryVariables>({ query: ProductBySlugDocument, ...options });
+};
+export const ProductsDocument = gql`
+    query Products {
+  products {
+    name
+    description
+    price
+    images {
+      fileName
+      url
+    }
+    variants {
+      ... on ProductSizeColorVariant {
+        id
+        name
+        color
+      }
+    }
+  }
+}
+    `;
+
+export function useProductsQuery(options?: Omit<Urql.UseQueryArgs<ProductsQueryVariables>, 'query'>) {
   return Urql.useQuery<ProductsQuery, ProductsQueryVariables>({ query: ProductsDocument, ...options });
 };

@@ -1,9 +1,37 @@
-query Products($slug: String!){
+query ProductBySlug($slug: String!){
   products(
     where: {slug: $slug}
   ){
     name
     description
     price
+    images{
+      fileName
+      url
+    }
+  }
+}
+
+query Products{
+  products
+  {
+    name
+    description
+    price
+    images{
+      fileName
+      url
+    }
+    variants {
+      ... on ProductColorVariant {
+        id
+        name
+      }
+      ... on  ProductSizeColorVariant{
+        id
+        name
+        color
+      }
+    }
   }
 }
